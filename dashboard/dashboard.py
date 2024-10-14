@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load dataset
-@st.cache
+@st.cache_data
 def load_data():
-    data = pd.read_csv('all_data.csv')  # atau 'day.csv'
+    data = pd.read_csv('dashboard/all_data.csv')  # atau 'day.csv'
     return data
 
 data = load_data()
