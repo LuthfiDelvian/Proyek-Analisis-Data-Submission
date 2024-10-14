@@ -1,1 +1,1 @@
-https://pi-share-bike.streamlit.app/
+https://bike-share-pi.streamlit.app/
