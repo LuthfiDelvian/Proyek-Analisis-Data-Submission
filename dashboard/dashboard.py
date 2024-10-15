@@ -2,26 +2,22 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 # Load dataset
 @st.cache_data
 def load_data():
-    data = pd.read_csv('dashboard/all_data.csv')  # atau 'day.csv'
+    data = pd.read_csv('dashboard/all_data.csv')  # Sesuaikan path file sesuai kebutuhan
     return data
 
 data = load_data()
 
-# Pemetaan musim
-season_mapping = {
-    1: "Spring",
-    2: "Summer",
-    3: "Fall",
-    4: "Winter"
-}
+# Pemetaan musim dan cuaca (jika belum ada)
+season_mapping = {1: "Spring", 2: "Summer", 3: "Fall", 4: "Winter"}
+weather_mapping = {1: "Clear", 2: "Mist", 3: "Light Snow/Rain", 4: "Heavy Rain"}
 
-# Menambahkan kolom deskriptif untuk musim
+# Menambahkan kolom deskriptif untuk musim dan cuaca
 data['season_name'] = data['season'].map(season_mapping)
+data['weather_name'] = data['weathersit'].map(weather_mapping)
 
 # Judul Dashboard
 st.title("Bike Sharing Dashboard")
@@ -45,8 +41,8 @@ if st.checkbox("Show Data Summary"):
 total_rentals = filtered_data['cnt'].sum()
 st.metric(label="Total Rentals", value=total_rentals)
 
-# Tab untuk visualisasi
-tab1, tab2, tab3 = st.tabs(["Musim vs Penyewaan", "Hari Kerja", "Suhu vs Penyewaan"])
+# Menambahkan tab untuk visualisasi
+tab1, tab2, tab3, tab4 = st.tabs(["Musim vs Penyewaan", "Hari Kerja", "Suhu vs Penyewaan", "Cuaca vs Penyewaan"])
 
 # Tab 1: Musim vs Penyewaan
 with tab1:
@@ -57,7 +53,13 @@ with tab1:
 # Tab 2: Hari Kerja
 with tab2:
     st.subheader("Pengaruh Hari Kerja Terhadap Jumlah Penyewaan")
-    fig_working_day = px.histogram(filtered_data, x='workingday', y='cnt', title="Jumlah Penyewaan Berdasarkan Hari Kerja", histfunc='sum')
+    fig_working_day = px.bar(
+        filtered_data.groupby('workingday')['cnt'].sum().reset_index(),
+        x='workingday',
+        y='cnt',
+        title="Jumlah Penyewaan Berdasarkan Hari Kerja",
+        labels={'workingday': 'Hari Kerja (0 = Tidak, 1 = Ya)', 'cnt': 'Jumlah Penyewaan'}
+    )
     st.plotly_chart(fig_working_day)
 
 # Tab 3: Suhu vs Penyewaan
@@ -67,7 +69,14 @@ with tab3:
     fig_temp = px.scatter(non_holiday_data, x='temp', y='cnt', title="Suhu vs Jumlah Penyewaan (Non-libur)", trendline="ols")
     st.plotly_chart(fig_temp)
 
-# Menambahkan grafik total penyewaan seiring waktu
-st.subheader("Total Penyewaan Sepeda Seiring Waktu")
-fig_time = px.line(data, x='dteday', y='cnt', title="Total Penyewaan Sepeda Seiring Waktu")
-st.plotly_chart(fig_time)
+
+# Tab 4: Cuaca vs Penyewaan (Bar Chart)
+with tab4:
+    st.subheader("Pengaruh Cuaca Terhadap Jumlah Penyewaan")
+    
+    # Menggunakan Plotly untuk Bar Chart
+    fig_weather = px.bar(filtered_data, x='weather_name', y='cnt', title="Jumlah Penyewaan Berdasarkan Cuaca", 
+                         labels={'weather_name': 'Cuaca', 'cnt': 'Jumlah Penyewaan'}, 
+                         color='weather_name',
+                         height=500)
+    st.plotly_chart(fig_weather)
