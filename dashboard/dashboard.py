@@ -70,11 +70,9 @@ with tab3:
     st.plotly_chart(fig_temp)
 
 
-# Tab 4: Cuaca vs Penyewaan (Bar Chart)
+# Tab 4: Cuaca vs Penyewaan
 with tab4:
     st.subheader("Pengaruh Cuaca Terhadap Jumlah Penyewaan")
-    
-    # Menggunakan Plotly untuk Bar Chart
     fig_weather = px.bar(filtered_data, x='weather_name', y='cnt', title="Jumlah Penyewaan Berdasarkan Cuaca", 
                          labels={'weather_name': 'Cuaca', 'cnt': 'Jumlah Penyewaan'}, 
                          color='weather_name',
